@@ -2,7 +2,7 @@ name: Detect New Repositories
 
 on:
   schedule:
-    - cron: "*/15 * * * *"  # Runs every 15 minutes
+    - cron: "*/1 * * * *"  # Runs every 1 minute
   workflow_dispatch:  # Allows manual execution if needed
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
         run: |
           # Fetch latest repo
           NEW_REPO=$(curl -s -H "Authorization: token $GH_PAT" \
-          "https://api.github.com/orgs/YOUR_ORG/repos?sort=created&per_page=1" | jq -r '.[0].full_name')
+          "https://api.github.com/orgs/The-Bulls/repos?sort=created&per_page=1" | jq -r '.[0].full_name')
 
           # Check if we already processed this repo
           echo "Last processed repo: $(cat last_repo.txt 2>/dev/null || echo 'none')"
@@ -31,7 +31,7 @@ jobs:
             # Trigger the sync workflow
             curl -X POST -H "Authorization: token $GH_PAT" \
               -H "Accept: application/vnd.github.everest-preview+json" \
-              "https://api.github.com/repos/YOUR_ORG/.github/dispatches" \
+              "https://api.github.com/repos/The-Bulls/.github/dispatches" \
               -d "{\"event_type\": \"new_repo_created\", \"client_payload\": {\"repo_full_name\": \"$NEW_REPO\"}}"
           else
             echo "No new repositories found."
