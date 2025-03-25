@@ -19,8 +19,7 @@ jobs:
       - name: Get list of community files
         run: |
           mkdir community-files
-          mkdir .github
-          mkdir .github/workflows
+          mkdir workflows
           cp CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE community-files/ || true
           cp .github/workflows/sync-community-files.yml .github/workflows/auto_merge.yml .github/workflows || true
 
@@ -29,9 +28,11 @@ jobs:
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${NEW_REPO}.git new-repo
           cd new-repo
           cp -r ../community-files/* .
-          mkdir .github
-          mkdir .github/workflows
-          cp -r ../.github/workflows/* .github/workflows
+          mkdir .github/
+          cd .github
+          mkdir workflows
+          cd ..
+          cp -r ../workflows/* .github/workflows
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git add .
