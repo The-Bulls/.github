@@ -2,12 +2,7 @@ name: Sync Community Files to New Repos
 
 on:
   repository_dispatch:
-    types: [new_repo_created]
-  workflow_dispatch:
-    inputs:
-      repo_name:
-        description: "Name of the new repository"
-        required: true
+    types: [new_repo_created]  # Triggered by the detect-new-repos workflow
 
 jobs:
   sync_files:
@@ -19,11 +14,7 @@ jobs:
 
       - name: Get repository name
         run: |
-          if [ -n "${{ github.event.client_payload.repo_full_name }}" ]; then
-            echo "NEW_REPO=${{ github.event.client_payload.repo_full_name }}" >> $GITHUB_ENV
-          else
-            echo "NEW_REPO=${{ github.event.inputs.repo_name }}" >> $GITHUB_ENV
-          fi
+          echo "NEW_REPO=${{ github.event.client_payload.repo_full_name }}" >> $GITHUB_ENV
 
       - name: Get list of community files
         run: |
@@ -44,5 +35,5 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git add .
-          git commit -m "Add community standard files and workflows"
+          git commit -m "Add community standard files"
           git push origin main
