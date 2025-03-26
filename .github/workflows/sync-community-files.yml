@@ -26,9 +26,16 @@ jobs:
             [[ -f $file ]] && cp $file community-files/
           done
 
+          # Ensure workflow directory exists in community-files
+          mkdir -p community-files/.github/workflows
+
           # Copy workflow files safely if they exist
           for wf in .github/workflows/auto_merge.yml .github/workflows/sync-community-files.yml; do
-            [[ -f $wf ]] && cp $wf community-files/ || echo "Warning: $wf not found, skipping..."
+            if [[ -f $wf ]]; then
+              cp $wf community-files/.github/workflows/
+            else
+              echo "Warning: $wf not found, skipping..."
+            fi
           done
 
       - name: Clone the new repository
@@ -36,17 +43,15 @@ jobs:
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${NEW_REPO}.git new-repo
           cd new-repo
 
-          # Ensure we only copy files that actually exist
-          if [ -d ../community-files ]; then
-            cp -r ../community-files/* .
-          fi
-          
-          # Ensure .github/workflows exists and copy workflow files if they exist
+          # Copy community files into the repo
+          cp -r ../community-files/* .
+
+          # Ensure .github/workflows exists and move the workflow file
           mkdir -p .github/workflows
-          if [ -f ../community-files/auto_merge.yml ]; then
-            cp ../community-files/auto_merge.yml .github/workflows/
+          if [ -f ../community-files/.github/workflows/auto_merge.yml ]; then
+            mv ../community-files/.github/workflows/auto_merge.yml .github/workflows/
           else
-            echo "Warning: auto_merge.yml not found in community-files, skipping copy..."
+            echo "Warning: auto_merge.yml not found in community-files, skipping move..."
           fi
 
           git config --global user.email "github-actions@github.com"
