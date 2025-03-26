@@ -58,6 +58,7 @@ jobs:
 
       - name: Prepare community files
         run: |
+          sudo rm -rf workflows
           mkdir -p community-files .github/workflows  # Ensure directories exist without errors
           
           # Copy community files only if they exist
