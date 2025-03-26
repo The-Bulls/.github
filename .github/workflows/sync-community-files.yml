@@ -1,3 +1,44 @@
+# name: Sync Community Files to New Repos
+
+# on:
+#   repository_dispatch:
+#     types: [new_repo_created]  # Triggered by the detect-new-repos workflow
+
+# jobs:
+#   sync_files:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout .github repository
+#         uses: actions/checkout@v4
+
+#       - name: Get repository name
+#         run: |
+#           echo "NEW_REPO=${{ github.event.client_payload.repo_full_name }}" >> $GITHUB_ENV
+
+#       - name: Get list of community files
+#         run: |
+#           mkdir community-files
+#           # mkdir workflows
+#           cp CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE community-files/ || true
+#           cp .github/workflows/sync-community-files.yml .github/workflows/auto_merge.yml .github/workflows || true
+
+#       - name: Clone the new repository
+#         run: |
+#           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${NEW_REPO}.git new-repo
+#           cd new-repo
+#           cp -r ../community-files/* .
+#           mkdir .github/
+#           cd .github
+#           mkdir workflows
+#           cd ..
+#           cp -r ../workflows/* .github/workflows
+#           git config --global user.email "github-actions@github.com"
+#           git config --global user.name "GitHub Actions"
+#           git add .
+#           git commit -m "Add community standard files"
+#           git push origin main
+
 name: Sync Community Files to New Repos
 
 on:
@@ -16,25 +57,24 @@ jobs:
         run: |
           echo "NEW_REPO=${{ github.event.client_payload.repo_full_name }}" >> $GITHUB_ENV
 
-      - name: Get list of community files
+      - name: Prepare community files
         run: |
-          mkdir community-files
-          # mkdir workflows
-          cp CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE community-files/ || true
-          cp .github/workflows/sync-community-files.yml .github/workflows/auto_merge.yml .github/workflows || true
+          mkdir -p community-files .github/workflows
+          [[ -f CONTRIBUTING.md ]] && cp CONTRIBUTING.md community-files/
+          [[ -f CODE_OF_CONDUCT.md ]] && cp CODE_OF_CONDUCT.md community-files/
+          [[ -f SECURITY.md ]] && cp SECURITY.md community-files/
+          [[ -f LICENSE ]] && cp LICENSE community-files/
+          [[ -f .github/workflows/sync-community-files.yml ]] && cp .github/workflows/sync-community-files.yml .github/workflows/
+          [[ -f .github/workflows/auto_merge.yml ]] && cp .github/workflows/auto_merge.yml .github/workflows/
 
       - name: Clone the new repository
         run: |
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${NEW_REPO}.git new-repo
           cd new-repo
           cp -r ../community-files/* .
-          mkdir .github/
-          cd .github
-          mkdir workflows
-          cd ..
-          cp -r ../workflows/* .github/workflows
+          cp -r ../.github ./
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git add .
-          git commit -m "Add community standard files"
+          git commit -m "Add community standard files" || echo "No changes to commit"
           git push origin main
