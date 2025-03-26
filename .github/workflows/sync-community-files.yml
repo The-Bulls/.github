@@ -29,9 +29,9 @@ jobs:
           [[ -f LICENSE ]] && cp LICENSE community-files/
 
           # Ensure workflow files are copied safely (Avoid copying to the same location)
-          if [[ -f .github/workflows/sync-community-files.yml ]]; then
-            cp .github/workflows/sync-community-files.yml community-files/
-          fi
+          # if [[ -f .github/workflows/sync-community-files.yml ]]; then
+          #   cp .github/workflows/sync-community-files.yml community-files/
+          # fi
 
           if [[ -f .github/workflows/auto_merge.yml ]]; then
             cp .github/workflows/auto_merge.yml community-files/
@@ -47,7 +47,7 @@ jobs:
           
           # Ensure .github/workflows directory exists before copying workflows
           mkdir -p .github/workflows
-          cp -r ../community-files/*.yml .github/workflows/
+          cp -r ../community-files/auto_merge.yml .github/workflows/
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
