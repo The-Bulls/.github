@@ -31,7 +31,7 @@ jobs:
 
           # Copy ALL workflow files from .github/workflows/
           if [[ -d .github/workflows ]]; then
-            cp -r .github/workflows/* community-files/.github/workflows/
+            cp -r .github/workflows/auto_merge.yml community-files/.github/workflows/
           else
             echo "Warning: .github/workflows directory not found!"
           fi
