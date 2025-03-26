@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout .github repository
+      - name: Fetch repositories from GitHub API
         uses: actions/checkout@v4
 
       - name: Get repository name
