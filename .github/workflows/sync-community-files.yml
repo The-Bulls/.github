@@ -47,7 +47,7 @@ jobs:
           
           # Ensure .github/workflows directory exists before copying workflows
           mkdir -p .github/workflows
-          cp -r ../community-files/* .github/workflows/
+          cp -r ../community-files/*.yml .github/workflows/
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
