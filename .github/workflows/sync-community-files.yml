@@ -18,25 +18,23 @@ jobs:
       - name: Prepare community files
         run: |
           # Remove existing directories to avoid conflicts
-          rm -rf community-files .github/workflows
-          mkdir -p community-files workflows  # Ensure directories exist
+          rm -rf community-files
+          mkdir -p community-files .github/workflows  # Ensure directories exist
 
           # Copy community files only if they exist
           for file in CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE; do
             [[ -f $file ]] && cp $file community-files/
           done
 
-          # Ensure workflow directory exists in community-files
-          mkdir -p community-files/workflows
+          # Ensure workflows directory exists
+          mkdir -p community-files/.github/workflows
 
-          # Copy workflow files safely if they exist
-          for wf in workflows/auto_merge.yml workflows/sync-community-files.yml; do
-            if [[ -f $wf ]]; then
-              cp $wf community-files/workflows/
-            else
-              echo "Warning: $wf not found, skipping..."
-            fi
-          done
+          # Copy ALL workflow files from .github/workflows/
+          if [[ -d .github/workflows ]]; then
+            cp -r .github/workflows/* community-files/.github/workflows/
+          else
+            echo "Warning: .github/workflows directory not found!"
+          fi
 
       - name: Clone the new repository
         run: |
@@ -46,17 +44,17 @@ jobs:
           # Copy community files into the repo
           cp -r ../community-files/* .
 
-          # Ensure .github/workflows exists and move the workflow file
+          # Ensure .github/workflows exists in the new repo
           mkdir -p .github/workflows
-          if [ -f ../community-files/.github/workflows/auto_merge.yml ]; then
-            mv ../community-files/workflows/auto_merge.yml .github/workflows/
-          else
-            echo "Warning: auto_merge.yml not found in community-files, skipping move..."
+          
+          # Move all workflow files to the correct location
+          if [[ -d ../community-files/.github/workflows ]]; then
+            cp -r ../community-files/.github/workflows/* .github/workflows/
           fi
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
           git add .
-          git commit -m "Add community standard files" || echo "No changes to commit"
+          git commit -m "Add community standard files and workflows" || echo "No changes to commit"
           git push origin main || echo "No changes to push"
