@@ -19,7 +19,7 @@ jobs:
         run: |
           # Remove existing directories to avoid conflicts
           rm -rf community-files .github/workflows
-          mkdir -p community-files .github/workflows  # Ensure directories exist
+          mkdir -p community-files workflows  # Ensure directories exist
 
           # Copy community files only if they exist
           for file in CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE; do
@@ -27,12 +27,12 @@ jobs:
           done
 
           # Ensure workflow directory exists in community-files
-          mkdir -p community-files/.github/workflows
+          mkdir -p community-files/workflows
 
           # Copy workflow files safely if they exist
-          for wf in .github/workflows/auto_merge.yml .github/workflows/sync-community-files.yml; do
+          for wf in workflows/auto_merge.yml workflows/sync-community-files.yml; do
             if [[ -f $wf ]]; then
-              cp $wf community-files/.github/workflows/
+              cp $wf community-files/workflows/
             else
               echo "Warning: $wf not found, skipping..."
             fi
@@ -49,7 +49,7 @@ jobs:
           # Ensure .github/workflows exists and move the workflow file
           mkdir -p .github/workflows
           if [ -f ../community-files/.github/workflows/auto_merge.yml ]; then
-            mv ../community-files/.github/workflows/auto_merge.yml .github/workflows/
+            mv ../community-files/workflows/auto_merge.yml .github/workflows/
           else
             echo "Warning: auto_merge.yml not found in community-files, skipping move..."
           fi
