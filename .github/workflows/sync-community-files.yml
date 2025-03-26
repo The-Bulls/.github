@@ -13,45 +13,45 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get repository name
-        run: |
-          echo "NEW_REPO=${{ github.event.client_payload.repo_full_name }}" >> $GITHUB_ENV
+        run: echo "NEW_REPO=${{ github.event.client_payload.repo_full_name }}" >> $GITHUB_ENV
 
       - name: Prepare community files
         run: |
-          # Remove any existing 'community-files' and '.github/workflows' directory to avoid conflicts
+          # Remove existing directories to avoid conflicts
           rm -rf community-files .github/workflows
-          mkdir -p community-files .github/workflows
+          mkdir -p community-files .github/workflows  # Ensure directories exist
 
-          # Copy community files safely if they exist
-          [[ -f CONTRIBUTING.md ]] && cp CONTRIBUTING.md community-files/
-          [[ -f CODE_OF_CONDUCT.md ]] && cp CODE_OF_CONDUCT.md community-files/
-          [[ -f SECURITY.md ]] && cp SECURITY.md community-files/
-          [[ -f LICENSE ]] && cp LICENSE community-files/
+          # Copy community files only if they exist
+          for file in CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE; do
+            [[ -f $file ]] && cp $file community-files/
+          done
 
-          # Ensure workflow files are copied safely (Avoid copying to the same location)
-          # if [[ -f .github/workflows/sync-community-files.yml ]]; then
-          #   cp .github/workflows/sync-community-files.yml community-files/
-          # fi
-
-          if [[ -f .github/workflows/auto_merge.yml ]]; then
-            cp .github/workflows/auto_merge.yml community-files/
-          fi
+          # Copy workflow files safely if they exist
+          for wf in .github/workflows/auto_merge.yml .github/workflows/sync-community-files.yml; do
+            [[ -f $wf ]] && cp $wf community-files/ || echo "Warning: $wf not found, skipping..."
+          done
 
       - name: Clone the new repository
         run: |
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${NEW_REPO}.git new-repo
           cd new-repo
 
-          # Copy prepared community files into the repo
-          cp -r ../community-files/* .
+          # Ensure we only copy files that actually exist
+          if [ -d ../community-files ]; then
+            cp -r ../community-files/* .
+          fi
           
-          # Ensure .github/workflows directory exists before copying workflows
+          # Ensure .github/workflows exists and copy workflow files if they exist
           mkdir -p .github/workflows
-          cp -r ../community-files/auto_merge.yml .github/workflows/
+          if [ -f ../community-files/auto_merge.yml ]; then
+            cp ../community-files/auto_merge.yml .github/workflows/
+          else
+            echo "Warning: auto_merge.yml not found in community-files, skipping copy..."
+          fi
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
           git add .
           git commit -m "Add community standard files" || echo "No changes to commit"
-          git push origin main
+          git push origin main || echo "No changes to push"
