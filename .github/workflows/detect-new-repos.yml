@@ -1,11 +1,9 @@
 name: Detect New Repositories
 
 on:
-  repository: 
-    types: [created]  # Triggers when a new repository is created
   schedule:
-    - cron: "*/1 * * * *"  # Runs every 5 minutes as a backup
-  workflow_dispatch:  # Allows manual execution
+    - cron: "* * * * *"  # Runs every second
+  workflow_dispatch:  # Allows manual execution if needed
 
 jobs:
   check_new_repos:
