@@ -2,7 +2,7 @@ name: Detect New Repositories
 
 on:
   schedule:
-    - cron: "* * * * *"  # Runs every second
+    - cron: "*/10 * * * *"  # Runs every ten minutes
   workflow_dispatch:  # Allows manual execution if needed
 
 jobs:
