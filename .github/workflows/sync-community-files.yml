@@ -38,7 +38,6 @@
 #           git add .
 #           git commit -m "Add community standard files"
 #           git push origin main
-
 name: Sync Community Files to New Repos
 
 on:
@@ -59,11 +58,15 @@ jobs:
 
       - name: Prepare community files
         run: |
-          mkdir -p community-files .github/workflows
+          mkdir -p community-files .github/workflows  # Ensure directories exist without errors
+          
+          # Copy community files only if they exist
           [[ -f CONTRIBUTING.md ]] && cp CONTRIBUTING.md community-files/
           [[ -f CODE_OF_CONDUCT.md ]] && cp CODE_OF_CONDUCT.md community-files/
           [[ -f SECURITY.md ]] && cp SECURITY.md community-files/
           [[ -f LICENSE ]] && cp LICENSE community-files/
+
+          # Copy workflow files safely
           [[ -f .github/workflows/sync-community-files.yml ]] && cp .github/workflows/sync-community-files.yml .github/workflows/
           [[ -f .github/workflows/auto_merge.yml ]] && cp .github/workflows/auto_merge.yml .github/workflows/
 
@@ -73,8 +76,10 @@ jobs:
           cd new-repo
           cp -r ../community-files/* .
           cp -r ../.github ./
+
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
+
           git add .
           git commit -m "Add community standard files" || echo "No changes to commit"
           git push origin main
